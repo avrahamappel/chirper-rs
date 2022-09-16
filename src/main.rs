@@ -1,13 +1,16 @@
-use axum::routing::get;
-use axum::{Router, Server};
+use std::sync::Arc;
 
-async fn root() -> &'static str {
-    "Chirpity"
-}
+use axum::{Extension, Router, Server};
+
+mod routes;
+mod state;
+
+use state::State;
 
 #[tokio::main]
 async fn main() {
-    let app = Router::new().route("/", get(root));
+    let state_layer = Extension(Arc::new(State::new()));
+    let app = routes::register_routes(Router::new().layer(state_layer));
 
     let url = "0.0.0.0:8000";
 
